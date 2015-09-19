@@ -3,10 +3,10 @@
 # Copyright (c) 2015 Nicolae Ghimbovschi
 
 WWWPATH="/opt/www"
-INSTALL_ROOT="/usr/local/opt/info-service"
-HTTPCONFPATH="${INSTALL_ROOT}/httpd.conf"
-INDEXHTMLPATH="${INSTALL_ROOT}/index.html"
-WEBSOCKETJSPATH="${INSTALL_ROOT}/websocketd.js"
+INSTALL_ROOT="/usr/local/opt/machine-info-service"
+HTTPCONFPATH="${INSTALL_ROOT}/share/httpd.conf"
+INDEXHTMLPATH="${INSTALL_ROOT}/share/index.html"
+WEBSOCKETJSPATH="${INSTALL_ROOT}/libexec/websocketd.js"
 WESOCKETD_INSTALL_PATH="${HOME}/Library/LaunchAgents/com.websocketd.plist"
 
 function showActionMessage() {
@@ -21,36 +21,36 @@ function showMessage() {
 function install() {
 	showActionMessage "Installing Websocketd info service"
 
-	cd "${INSTALL_ROOT}"
+	cd "${INSTALL_ROOT}/libexec"
 	npm install websocket
 	cd ~-
 
-	cat > "${WESOCKETD_INSTALL_PATH}" << EOF
-	<?xml version="1.0" encoding="UTF-8"?>
-	<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-	<plist version="1.0">
-	<dict>
-	   <key>Label</key>
-	   <string>com.infoservice</string>
-	   <key>Program</key>
-	   <string>/usr/local/bin/node</string>
-	   <key>ProgramArguments</key>
-	   <array>
-	        <string>/usr/local/bin/node</string>
-	        <string>${WEBSOCKETJSPATH}</string>
-	    </array>
+cat > "${WESOCKETD_INSTALL_PATH}" << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+   <key>Label</key>
+   <string>com.infoservice</string>
+   <key>Program</key>
+   <string>/usr/local/bin/node</string>
+   <key>ProgramArguments</key>
+   <array>
+        <string>/usr/local/bin/node</string>
+        <string>${WEBSOCKETJSPATH}</string>
+    </array>
 
-	   <key>RunAtLoad</key>
-	   <true/>
-	   <key>KeepAlive</key>
-	   <true/>
-	   <key>StandardOutPath</key>
-	   <string>/tmp/com.infoservice-agent.log</string>
-	   <key>StandardErrorPath</key>
-	   <string>/tmp/com.infoservice-agent_err.log</string>
-	</dict>
-	</plist>
-	EOF
+   <key>RunAtLoad</key>
+   <true/>
+   <key>KeepAlive</key>
+   <true/>
+   <key>StandardOutPath</key>
+   <string>/tmp/com.infoservice-agent.log</string>
+   <key>StandardErrorPath</key>
+   <string>/tmp/com.infoservice-agent_err.log</string>
+</dict>
+</plist>
+EOF
 	launchctl load -w "${WESOCKETD_INSTALL_PATH}"
 
 	showActionMessage "Setup and start Apache2"
@@ -72,3 +72,25 @@ function uninstall() {
 	sudo launchctl unload -w /System/Library/LaunchDaemons/org.apache.httpd.plist
 	sudo mv -f /etc/apache2/httpd.conf.original /etc/apache2/httpd.conf
 }
+
+function usage() {
+	echo "Usage: $0 install|uninstall"
+}
+
+
+if [ $# -eq 1 ]; then
+	case "$1" in
+		"install")
+			install
+			;;
+		"uninstall")
+			uninstall
+			;;
+		*)
+			usage
+			exit 0
+			;;
+	esac
+else
+	usage
+fi
