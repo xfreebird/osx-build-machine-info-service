@@ -37,11 +37,12 @@ machine-info
 ## What it can do ?
 
 * Show hardware and OS information
+* List all installed Xcode apps
 * List installed iOS and OSX SDKs
 * List installed iOS signing certificates
 * List installed iOS provisioning profiles
 * List installed Android SDKs, NDKs, Build Tools, Platforms and Emulators
-* List all installed gems and brew packages
+* List all installed gems and all brew packages
 
 ## How it works ? 
 
@@ -52,6 +53,10 @@ machine-info
 ## Logs
 
 All logs are written to ```/tmp/com.infoservice-agent.log``` and ```/tmp/com.infoservice-agent_err.log```.
+
+## Example
+
+![alt text](https://raw.githubusercontent.com/xfreebird/osx-build-machine-info-service/master/sample.png "Sample")
 
 # License
 
