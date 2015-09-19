@@ -39,9 +39,7 @@ function iOSBuildTools() {
 
 	unset DEVELOPER_DIR
 
-	echo "Installed iosbuider.sh"
 	echo "Installed xctool" $(xctool -version)
-
 }
 
 function installedCertificates() {
