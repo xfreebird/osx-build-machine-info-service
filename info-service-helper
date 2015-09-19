@@ -67,10 +67,10 @@ EOF
 }
 
 function uninstall() {
-	rm -fr "${WWWPATH}"
 	launchctl unload -w "${WESOCKETD_INSTALL_PATH}"
 	sudo launchctl unload -w /System/Library/LaunchDaemons/org.apache.httpd.plist
 	sudo mv -f /etc/apache2/httpd.conf.original /etc/apache2/httpd.conf
+	sudo rm -fr "${WWWPATH}"
 }
 
 function usage() {

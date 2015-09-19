@@ -2,6 +2,8 @@
 
 source ~/.profile
 
+export PATH=$PATH:/usr/local/bin
+
 function echoSeparator() {
 	echo "------------------------------------------------------------"
 }
