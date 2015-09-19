@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Device information</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="http://getbootstrap.com/examples/non-responsive/non-responsive.css" rel="stylesheet">
+
+  </head>
+
+
+  <body>
+
+    <div class="container">
+
+      <div class="page-header">
+        <h1>Build Machine System Information</h1>
+        <p class="lead" id="all"></p>
+      </div>
+
+
+    </div> <!-- /container -->
+
+
+    <script>
+    var ws = new WebSocket('ws://' + window.location.hostname + ':9999/');
+
+    ws.onopen = function() {
+        ws.send("all");
+    };
+
+    ws.onmessage = function(event) {
+       $("#all").append(event.data.replace(/(?:\r\n|\r|\n)/g, '<br />')); 
+    };
+
+   </script>
+
+  </body>
+</html>

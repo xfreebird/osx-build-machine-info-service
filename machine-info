@@ -1,0 +1,252 @@
+#/bin/bash
+
+source ~/.profile
+
+function echoSeparator() {
+	echo "------------------------------------------------------------"
+}
+
+function echoHeading() {
+	echo "<h2>$1</h2>"
+}
+
+function OSInformation() {
+	#installed xcodes
+	echoSeparator
+	echoHeading "OSX $(sw_vers -productVersion)"
+	system_profiler SPHardwareDataType
+	echoSeparator
+	echoHeading "Free space:"
+	df -h /
+}
+
+function iOSBuildTools() {
+	#installed xcodes
+	echoSeparator
+	echoHeading "iOS Build Tools"
+	echoSeparator
+	for xcode in $(find /Applications -name Xcode*.app -maxdepth 1)
+	do
+		export DEVELOPER_DIR="$xcode"
+		echo "$xcode"
+		xcodebuild -version
+		echo ""
+		xcodebuild -showsdks
+		echoSeparator
+	done
+
+	unset DEVELOPER_DIR
+
+	echo "Installed iosbuider.sh"
+	echo "Installed xctool" $(xctool -version)
+
+}
+
+function installedCertificates() {
+	#installed signing certificates
+	echoSeparator
+	echoHeading "Installed iOS Code Signing Certificates"
+	echoSeparator
+
+	OLDIFS=$IFS
+	IFS=$'\n'
+	for certificate in $(security find-identity -v  -p codesigning  | awk -F\" '{print $2}')
+	do
+		EXPIRYDATE=$(date -jf "%b %d %H:%M:%S %Y %Z" "$(security find-certificate -a -c "$certificate" -p | openssl x509 -enddate | grep notAfter | cut -d"=" -f2)" +"%d-%b-%Y")
+
+		CERTDATE=$(date -jf "%d-%b-%Y" "$EXPIRYDATE" +"%s")
+		TODAY=$(date "+%s")
+
+		if [ $CERTDATE -lt $TODAY ]
+		then
+			echo "<b><font color=\"red\">$certificate, IS EXPIRED $EXPIRYDATE</font></b>"
+		else
+			echo "$certificate, expiration date $EXPIRYDATE"
+		fi
+
+	done
+	IFS=$OLDIFS
+}
+
+function installedProfiles() {
+	#installed provisioning profiles
+	echoSeparator
+	echoHeading "Installed iOS Provisioning Profiles"
+	echoSeparator
+	find "$HOME/Library/MobileDevice/Provisioning Profiles"/*.mobileprovision -print0 | while read -d $'\0' file; do  UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' /dev/stdin <<< $(security cms -D -i "$file")); echo "UUID: $UUID - $(basename "$file")"; done
+
+}
+
+function javaTools() {
+	#installed java 
+	echoSeparator
+	echoHeading "JVM and Java Ecosystem Tools"
+	echoSeparator
+	/usr/libexec/java_home -V 2>&1 | sed "s|Home|Home\n|g"
+
+	#ant version
+	echoSeparator
+	ant -version
+
+	#maven version
+	echoSeparator
+	mvn -version
+
+	gradle -version
+}
+
+function SCVInfo() {
+
+	#installed java 
+	echoSeparator
+	echoHeading "Source control tools"
+	echoSeparator
+
+	echo "Git $(git --version)"
+	echoSeparator
+
+	echo "SVN" 
+	svn --version
+}
+
+function QATools() {
+
+	#installed java 
+	echoSeparator
+	echoHeading "SonarQube tools"
+	echoSeparator
+
+	sonar-runner -v
+
+	echoSeparator
+	echo "OCLint"
+	oclint -version
+}
+
+
+function androidSDK() {
+	#installed android sdks
+	echoSeparator
+	echoHeading "Installed Android SDKs"
+	echoSeparator
+
+	echo "ANDROID_HOME=/usr/local/opt/android-sdk"
+	for SDK_VERSION in $(ls -1 /usr/local/Cellar/android-sdk/)
+	do
+		echo "${SDK_VERSION} -> /usr/local/Cellar/android-sdk/${SDK_VERSION}"
+	done
+}
+
+function androidNDK() {
+	#installed android ndks
+	echoSeparator
+	echoHeading "Installed Android NDKs"
+	echoSeparator
+	echo "NDK_HOME=/usr/local/opt/android-ndk"
+	for NDK_VERSION in $(ls -1 /usr/local/Cellar/android-ndk/)
+	do
+		echo "${NDK_VERSION} -> /usr/local/Cellar/android-ndk/${NDK_VERSION}"
+	done
+}
+
+
+function androidPlatforms() {
+	#installed android platforms
+	echoSeparator
+	echoHeading "Installed Android SDK Platforms"
+	echoSeparator
+	echo "ANDROID_HOME=/usr/local/opt/android-sdk"
+
+	for path in $(ls -1 /usr/local/opt/android-sdk/platforms/)
+	do
+		echo "Android SDK Platforms $path"
+	done
+}
+
+function androidBuildTools() {
+	#installed android build-tools
+	
+	echoSeparator
+	echoHeading "Installed Android SDK Build Tools"
+	echoSeparator
+	echo "ANDROID_HOME=/usr/local/opt/android-sdk"
+
+	for path in $(ls -1 /usr/local/opt/android-sdk/build-tools/)
+	do
+		echo "Android SDK Build Tool $path"
+	done
+}
+
+function androidEmulators() {
+	#installed emulators 
+	
+
+	echoSeparator
+	echoHeading "Installed Android Emulators"
+	echoSeparator
+	echo "ANDROID_HOME=/usr/local/opt/android-sdk"
+
+	for path in $(find /usr/local/opt/android-sdk/system-images/ -name armeabi* | sed 's|/usr/local/opt/android-sdk/system-images//||g')
+	do
+		echo "Android Emulator $path"
+	done
+
+}
+
+function environmentVariables() {
+	echoSeparator
+	echoHeading "System environment"
+	echoSeparator
+	env
+}
+
+function installedGems() {
+	echoSeparator
+	echoHeading "Installed gems"
+	echoSeparator
+	gem list
+
+}
+
+function installedBrewPackages() {
+	echoSeparator
+	echoHeading "Installed brew packages"
+	echoSeparator
+	brew list --versions
+	brew cask list
+
+}
+
+function showAll() {
+	OSInformation
+	SCVInfo
+	QATools
+	iOSBuildTools
+	javaTools
+	androidSDK
+	androidNDK
+	androidPlatforms
+	androidBuildTools
+	androidEmulators
+	installedCertificates
+	installedProfiles
+	environmentVariables
+	installedBrewPackages
+	installedGems
+}
+
+case "$1" in
+ios) iOSBuildTools;;
+cetificates) installedCertificates;;
+profiles) installedProfiles;;
+java) javaTools;;
+androidsdk) androidSDK;;
+androidndk) androidNDK;;
+androidplatforms) androidPlatforms;;
+androidbuildtools) androidBuildTools;;
+androidemulators) androidEmulators;;
+envset) environmentVariables;;
+gems) installedGems;;
+brews) installedBrewPackages;;
+*) showAll;;
+esac
