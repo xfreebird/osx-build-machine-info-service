@@ -41,6 +41,7 @@ machine-info
 * List installed iOS and OSX SDKs
 * List installed iOS signing certificates
 * List installed iOS provisioning profiles
+* List all installed Java tools and information
 * List installed Android SDKs, NDKs, Build Tools, Platforms and Emulators
 * List all installed gems and all brew packages
 
